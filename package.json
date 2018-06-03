@@ -1,0 +1,25 @@
+{
+  "name": "slackalytics-bot",
+  "version": "1.0.0",
+  "description": "Send Slack messaging analytics to GoogleAnalytics.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "keywords": [
+    "Slack",
+    "bot",
+    "slackbot",
+    "analytics",
+    "slackalytics"
+  ],
+  "author": "Glad Chinda <gladxeqs@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@slack/client": "^4.2.2",
+    "@slack/events-api": "^1.0.1",
+    "body-parser": "^1.18.3",
+    "dotenv": "^5.0.1",
+    "express": "^4.16.3"
+  }
+}
