@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const Config = require('./helpers/config');
 const { RTMClient, WebClient } = require('@slack/client');
 // const { createSlackEventAdapter } = require('@slack/events-api');
+const { fetchAllUsers } = require('./helpers/users');
 const { fetchAllChannels } = require('./helpers/channels');
 
 const PORT = process.env.PORT || 3000;
@@ -38,6 +39,7 @@ app.use(bodyParser.json());
 
 // });
 
+fetchAllUsers(web);
 fetchAllChannels(web);
 
 app.listen(PORT, () => console.log(`Server started on ${PORT}`));

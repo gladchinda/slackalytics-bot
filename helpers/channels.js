@@ -14,7 +14,14 @@ const getChannelsFilePointer = flag => {
 	return fs.openSync(CHANNELS_JSON_FILE, flag);
 }
 
-const getChannelById = channelID => {}
+const getChannelById = channelid => {
+	const channelsFile = getChannelsFilePointer('r');
+	const { channels } = JSON.parse(fs.readFileSync(channelsFile).toString('utf8'));
+
+	fs.closeSync(channelsFile);
+
+	return channels.find(channel => channel.id === channelid);
+}
 
 const fetchAllChannels = client => {
 	client.channels.list()
