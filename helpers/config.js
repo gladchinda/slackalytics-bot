@@ -4,6 +4,7 @@ module.exports = {
 
 	files: {
 		users: path.resolve(__dirname, '../.data/users.json'),
+		groups: path.resolve(__dirname, '../.data/groups.json'),
 		channels: path.resolve(__dirname, '../.data/channels.json')
 	},
 

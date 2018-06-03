@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
 const Config = require('./config');
@@ -31,7 +32,13 @@ const fetchAllUsers = client => {
 			const usersFile = getUsersFilePointer('w+');
 
 			// `res` contains information about the users
-			res.members.forEach(user => users.push(user));
+			res.members.forEach(user => users.push({
+				...(_.pick(user, [
+					'id', 'team_id', 'name', 'deleted', 'real_name', 'is_admin', 'is_owner', 'is_primary_owner',
+					'is_restricted', 'is_ultra_restricted', 'is_bot', 'updated', 'is_app_user'
+				])),
+				email: user.profile.email
+			}));
 
 			// update the users.json file
 			fs.writeFileSync(usersFile, JSON.stringify({ users }, null, '\t'));

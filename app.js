@@ -3,9 +3,8 @@ const dotenv = require('dotenv').config();
 const bodyParser = require('body-parser');
 const Config = require('./helpers/config');
 const { RTMClient, WebClient } = require('@slack/client');
-// const { createSlackEventAdapter } = require('@slack/events-api');
-const { fetchAllUsers } = require('./helpers/users');
-const { fetchAllChannels } = require('./helpers/channels');
+const { fetchAllUsers, getUserById } = require('./helpers/users');
+const { fetchAllChannels, fetchAllGroups, getGroupById, getChannelById } = require('./helpers/channels');
 
 const PORT = process.env.PORT || 3000;
 const SLACK_TOKEN = Config.tokens.slack;
@@ -13,33 +12,33 @@ const SLACK_TOKEN = Config.tokens.slack;
 const app = express();
 const rtm = new RTMClient(SLACK_TOKEN);
 const web = new WebClient(SLACK_TOKEN);
-// const slackEvents = createSlackEventAdapter(process.env.SLACK_VERIFICATION_TOKEN);
 
 app.use(bodyParser.json());
 
-// app.use('/slack/message', slackEvents.expressMiddleware());
+rtm.start();
 
-// slackEvents.on('message', event => {
-// 	// console.log(`Received a message event: user ${event.user} in channel ${event.channel} says ${event.text}`);
-// 	console.log(event);
-// });
+rtm.on('message', event => {
 
-// slackEvents.on('error', console.error);
+	let { ...data } = event;
 
-// rtm.start();
+	const user = getUserById(data.user);
+	const group = getGroupById(data.channel);
+	const	channel = getChannelById(data.channel);
 
-// rtm.on('message', event => {
+	const hasSubtype = !!data.subtype;
+	const isBotMessage = data.subtype && data.subtype === 'bot_message';
+	const isFromThisBot = !data.subtype && data.user === rtm.activeUserId;
+	const notChannelMember = !(group || (channel && channel.is_member));
 
-	// const isBotMessage = message.subtype && message.subtype === 'bot_message';
-	// const isFromThisBot = !message.subtype && message.user === rtm.activeUserId;
+	if (hasSubtype || notChannelMember || isBotMessage || isFromThisBot) return;
 
-	// if (isBotMessage || isFromThisBot) return;
+	data = { ...data, user, channel: group || channel }
+	console.log(data);
 
-	// console.log(event);
-
-// });
+});
 
 fetchAllUsers(web);
+fetchAllGroups(web);
 fetchAllChannels(web);
 
 app.listen(PORT, () => console.log(`Server started on ${PORT}`));
