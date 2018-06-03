@@ -1,16 +1,13 @@
-const fs = require('fs');
-const path = require('path');
 const express = require('express');
 const dotenv = require('dotenv').config();
 const bodyParser = require('body-parser');
+const Config = require('./helpers/config');
 const { RTMClient, WebClient } = require('@slack/client');
 // const { createSlackEventAdapter } = require('@slack/events-api');
+const { fetchAllChannels } = require('./helpers/channels');
 
 const PORT = process.env.PORT || 3000;
-const SLACK_TOKEN = process.env.SLACK_ACCESS_TOKEN;
-
-const USERS_FILE = '.data/users.json';
-const CHANNELS_FILE = '.data/channels.json';
+const SLACK_TOKEN = Config.tokens.slack;
 
 const app = express();
 const rtm = new RTMClient(SLACK_TOKEN);
@@ -41,22 +38,6 @@ app.use(bodyParser.json());
 
 // });
 
-const updateChannels = client => {
-	client.channels.list()
-		.then((res) => {
-			// const content = fs.readFileSync('data/channels.json').toString('utf8');
-			// const channels = JSON.parse(content).channels;
-			const channels = [];
-
-			// `res` contains information about the channels
-			res.channels.forEach(channel => channels.push(channel));
-
-			// update the channels.json file
-			fs.writeFileSync(CHANNELS_FILE, JSON.stringify({ channels }, null, '\t'));
-		})
-		.catch(console.error);
-}
-
-updateChannels(web);
+fetchAllChannels(web);
 
 app.listen(PORT, () => console.log(`Server started on ${PORT}`));
