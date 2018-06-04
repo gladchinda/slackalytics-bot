@@ -1,27 +1,39 @@
 {
-  "name": "slackalytics-bot",
-  "version": "1.0.0",
-  "description": "Send Slack messaging analytics to GoogleAnalytics.",
-  "main": "index.js",
-  "scripts": {
-    "start": "node app.js"
-  },
-  "keywords": [
-    "Slack",
-    "bot",
-    "slackbot",
-    "analytics",
-    "slackalytics"
-  ],
-  "author": "Glad Chinda <gladxeqs@gmail.com>",
-  "license": "MIT",
-  "dependencies": {
-    "@slack/client": "^4.2.2",
-    "axios": "^0.18.0",
-    "body-parser": "^1.18.3",
-    "dotenv": "^5.0.1",
-    "express": "^4.16.3",
-    "lodash": "^4.17.10",
-    "querystring": "^0.2.0"
-  }
+ "name": "slackalytics-bot",
+ "version": "1.0.0",
+ "private": false,
+ "description": "Send Slack messaging analytics to GoogleAnalytics.",
+ "engines": {
+  "node": "^8.11.1",
+  "npm": "^5.6.0"
+ },
+ "repository": {
+  "type": "git",
+  "url": "git+https://github.com/gladchinda/slackalytics-bot.git"
+ },
+ "keywords": [
+  "Slack",
+  "bot",
+  "slackbot",
+  "analytics",
+  "slackalytics"
+ ],
+ "scripts": {
+  "start": "node app.js"
+ },
+ "author": "Glad Chinda <gladxeqs@gmail.com>",
+ "license": "MIT",
+ "homepage": "https://github.com/gladchinda/slackalytics-bot#readme",
+ "dependencies": {
+  "@slack/client": "^4.2.2",
+  "axios": "^0.18.0",
+  "body-parser": "^1.18.3",
+  "dotenv": "^5.0.1",
+  "express": "^4.16.3",
+  "lodash": "^4.17.10",
+  "moment": "^2.22.2",
+  "querystring": "^0.2.0",
+  "winston": "^3.0.0-rc6",
+  "winston-daily-rotate-file": "^3.2.1"
+ }
 }
