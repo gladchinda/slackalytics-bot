@@ -1,4 +1,28 @@
+const _ = require('lodash');
 const path = require('path');
+
+// Get prefix based on runtime environment
+const dev = process.env.NODE_ENV !== 'production';
+const CONFIG_PREFIX = dev ? 'TEST_' : 'LIVE_';
+
+/**
+ * Gets the value from an environment variable.
+ * Returns null if the variable does not exist.
+ *
+ * @param {string} config Env variable name
+ * @param {boolean} withPrefix Should add environment prefix
+ */
+const env = (config, withPrefix = false) => {
+	// Ensure withPrefix is boolean defaulting to false
+	withPrefix = _.isBoolean(withPrefix) && withPrefix;
+
+	// Add prefix if config requires prefix
+	withPrefix && (config = `${CONFIG_PREFIX}${config}`);
+
+	const value = process.env[config];
+
+	return value || null;
+};
 
 module.exports = {
 
@@ -11,12 +35,12 @@ module.exports = {
 
 	tokens: {
 		// Slack Access Token
-		slack: process.env.SLACK_ACCESS_TOKEN
+		slack: env('SLACK_ACCESS_TOKEN', true)
 	},
 
 	analytics: {
 		// Google Analytics Tracking ID
-		id: process.env.GOOG_ANALYTICS_TRACKING_ID
+		id: env('GOOG_ANALYTICS_TRACKING_ID', true)
 	}
 
 };
