@@ -1,6 +1,7 @@
 const qs = require('querystring');
 const axios = require('axios');
 const Config = require('./config');
+const { getLogger } = require('./logger');
 
 // Fetches the Google Analytics tracking ID from config
 const ANALYTICS_ID = Config.analytics.id;
@@ -33,7 +34,9 @@ const splitCount = text => regex => {
  *
  * @param {object} message The message data object
  */
-const postMessageAnalytics = message => {
+const postMessageAnalytics = app => message => {
+
+	const logger = getLogger(app);
 
 	// Extract message data to local variables
 	const messageText = message.text;
@@ -52,7 +55,6 @@ const postMessageAnalytics = message => {
 	const exclamationCount = searchM(/!/g);
 	const ellipsesCount = searchM(/\.{3}/g);
 	const questionMarkCount = searchM(/\?/g);
-
 
 	/**
 	 * Analytics Data Structure
@@ -90,7 +92,7 @@ const postMessageAnalytics = message => {
 	// Push the data to Google Analytics server
 	axios.post(`https://www.google-analytics.com/collect?${qs.stringify(data)}`)
 		.then(res => console.log('PUSHED'))
-		.catch(console.error);
+		.catch(err => logger.error('An error occurred while pushing metrics to Google Analytics: %s', err));
 
 };
 

@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const fs = require('fs');
-const path = require('path');
 const Config = require('./config');
+const { getLogger } = require('./logger');
 const { getFilePointer } = require('./functions');
 
 // Fetch the groups.json and channels.json files from the config.
@@ -52,10 +52,17 @@ const getGroupById = groupid => {
  * Fetches all the public channels in the Slack team and dumps specific data
  * about each of them into the channels.json file.
  *
- * @param {WebClient} client An instance of the Slack WebClient
+ * @param {Express.Application} app An instance of Express.Application
  */
-const fetchAllChannels = client => {
-	client.channels.list()
+const fetchAllChannels = app => {
+
+	// Get logger from app instance
+	const logger = getLogger(app);
+
+	// Get the Slack WebClient from app instance
+	const { web: client } = app.get('SLACK_CLIENTS') || {};
+
+	client && client.channels.list()
 		.then((res) => {
 
 			const channels = [];
@@ -74,18 +81,32 @@ const fetchAllChannels = client => {
 			fs.writeFileSync(channelsFile, JSON.stringify({ channels }, null, '\t'));
 			fs.closeSync(channelsFile);
 
+			// Log channels update
+			logger.info('Public channels updated successfully.', {
+				file: CHANNELS_JSON_FILE,
+				channels: channels.length
+			});
+
 		})
-		.catch(console.error);
+		.catch(err => logger.error('An error occurred while fetching public channels: %s', err));
+
 }
 
 /**
  * Fetches all the private channels(groups) in the Slack team and dumps specific data
  * about each of them into the groups.json file.
  *
- * @param {WebClient} client An instance of the Slack WebClient
+ * @param {Express.Application} app An instance of Express.Application
  */
-const fetchAllGroups = client => {
-	client.groups.list()
+const fetchAllGroups = app => {
+
+	// Get logger from app instance
+	const logger = getLogger(app);
+
+	// Get the Slack WebClient from app instance
+	const { web: client } = app.get('SLACK_CLIENTS') || {};
+
+	client && client.groups.list()
 		.then((res) => {
 
 			const groups = [];
@@ -103,8 +124,14 @@ const fetchAllGroups = client => {
 			fs.writeFileSync(groupsFile, JSON.stringify({ groups }, null, '\t'));
 			fs.closeSync(groupsFile);
 
+			// Log groups update
+			logger.info('Private channels(groups) updated successfully.', {
+				file: GROUPS_JSON_FILE,
+				groups: groups.length
+			});
+
 		})
-		.catch(console.error);
+		.catch(err => logger.error('An error occurred while fetching private channels(groups): %s', err));
 }
 
 module.exports = {

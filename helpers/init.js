@@ -6,17 +6,27 @@ const { setupLogger } = require('./logger');
 const { fetchAllUsers } = require('./users');
 const { fetchAllChannels, fetchAllGroups } = require('./channels');
 
+// Fetch Slack Access Token from config
 const SLACK_TOKEN = Config.tokens.slack;
 
-const rtm = new RTMClient(SLACK_TOKEN);
-const web = new WebClient(SLACK_TOKEN);
-
 module.exports = app => {
+
+	// Setup logger for Express app
 	setupLogger(app);
 
-	fetchAllUsers(web);
-	fetchAllGroups(web);
-	fetchAllChannels(web);
+	// Create Slack clients
+	const rtm = new RTMClient(SLACK_TOKEN);
+	const web = new WebClient(SLACK_TOKEN);
 
-	slackEvents({ web, rtm });
+	// Set Slack clients on app instance
+	app.set('SLACK_CLIENTS', { web, rtm });
+
+	// Fetch and store users, groups and channels data
+	fetchAllUsers(app);
+	fetchAllGroups(app);
+	fetchAllChannels(app);
+
+	// Setup Slack realtime messaging events
+	slackEvents(app);
+
 };

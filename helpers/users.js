@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const fs = require('fs');
 const Config = require('./config');
+const { getLogger } = require('./logger');
 const { getFilePointer } = require('./functions');
 
 // Fetch the users.json file from the config.
@@ -31,10 +32,17 @@ const getUserById = userid => {
  * Fetches all the users in the Slack team and dumps specific data
  * about each of them into the users.json file.
  *
- * @param {WebClient} client An instance of the Slack WebClient
+ * @param {Express.Application} app An instance of Express.Application
  */
-const fetchAllUsers = client => {
-	client.users.list()
+const fetchAllUsers = app => {
+
+	// Get logger from app instance
+	const logger = getLogger(app);
+
+	// Get the Slack WebClient from app instance
+	const { web: client } = app.get('SLACK_CLIENTS') || {};
+
+	client && client.users.list()
 		.then((res) => {
 
 			const users = [];
@@ -54,8 +62,14 @@ const fetchAllUsers = client => {
 			fs.writeFileSync(usersFile, JSON.stringify({ users }, null, '\t'));
 			fs.closeSync(usersFile);
 
+			// Log users update
+			logger.info('Users updated successfully.', {
+				file: USERS_JSON_FILE,
+				users: users.length
+			});
+
 		})
-		.catch(console.error);
+		.catch(err => logger.error('An error occurred while fetching users: %s', err));
 }
 
 module.exports = {
