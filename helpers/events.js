@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const { getLogger } = require('./logger');
 const { postMessageAnalytics } = require('./analytics');
 const { fetchAllUsers, getUserById } = require('./users');
 const { fetchAllChannels, fetchAllGroups, getGroupById, getChannelById } = require('./channels');
@@ -7,10 +8,28 @@ const { fetchAllChannels, fetchAllGroups, getGroupById, getChannelById } = requi
  * Helper function that returns a function for setting up event handlers for
  * a collection of events on the Realtime Messaging Client.
  *
- * @param {Slack.RtmClient} rtm An instance of Slack.RtmClient
+ * @param {Express.Application} app An instance of Express.Application
  */
-const bindAllEvents = rtm => (events = [], handler = f => f) => {
-	events.forEach(event => ((_.isFunction(handler)) && rtm.on(event, handler)));
+const bindAllEvents = app => (events = [], handler = f => f) => {
+
+	// Get logger from app instance
+	const logger = getLogger(app);
+	const hasLogger = logger && logger.info;
+
+	// Get Slack clients from the app instance
+	const { rtm = null } = app.get('SLACK_CLIENTS') || {};
+
+	// Register each collection event on the RtmClient
+	rtm && events.forEach(event => {
+		rtm.on(event, eventData => {
+			// Log Slack event received
+			hasLogger && logger.info('Received Slack event.', { event, data: eventData });
+
+			// Delegate handling to the specified event handler
+			_.isFunction(handler) && handler(eventData, app);
+		});
+	});
+
 }
 
 module.exports = app => {
@@ -23,8 +42,8 @@ module.exports = app => {
 		// Start the Realtime Messaging client
 		rtm.start();
 
-		// Bind to the RtmClient
-		const bindEvents = bindAllEvents(rtm);
+		// Bind to the app Slack clients
+		const bindEvents = bindAllEvents(app);
 
 		const channelEvents = [
 			'channel_archive', 'channel_unarchive', 'channel_created', 'channel_deleted', 'channel_rename',
@@ -61,7 +80,7 @@ module.exports = app => {
 			if (hasSubtype || notChannelMember || isBotMessage || isFromThisBot) return;
 
 			// Update the message data with the user and channel information
-			data = { ...data, user, channel: group || channel }
+			data = { ...data, user, channel: group || channel };
 
 			// Extract and post the message data metrics to Google Analytics
 			postMessageAnalytics(app)(data);
@@ -69,10 +88,10 @@ module.exports = app => {
 		});
 
 		// Bind to different event collections
-		bindEvents(channelEvents, () => fetchAllChannels(app));
-		bindEvents(groupEvents, () => fetchAllGroups(app));
-		bindEvents(userEvents, () => fetchAllUsers(app));
-		bindEvents(memberEvents, () => fetchAllChannels(app));
+		bindEvents(channelEvents, (data, app) => fetchAllChannels(app));
+		bindEvents(groupEvents, (data, app) => fetchAllGroups(app));
+		bindEvents(userEvents, (data, app) => fetchAllUsers(app));
+		bindEvents(memberEvents, (data,app) => fetchAllChannels(app));
 
 	}
 
