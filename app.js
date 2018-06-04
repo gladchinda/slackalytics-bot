@@ -3,6 +3,7 @@ const dotenv = require('dotenv').config();
 const bodyParser = require('body-parser');
 const Config = require('./helpers/config');
 const { RTMClient, WebClient } = require('@slack/client');
+const { postMessageAnalytics } = require('./helpers/analytics');
 const { fetchAllUsers, getUserById } = require('./helpers/users');
 const { fetchAllChannels, fetchAllGroups, getGroupById, getChannelById } = require('./helpers/channels');
 
@@ -33,7 +34,7 @@ rtm.on('message', event => {
 	if (hasSubtype || notChannelMember || isBotMessage || isFromThisBot) return;
 
 	data = { ...data, user, channel: group || channel }
-	console.log(data);
+	postMessageAnalytics(data);
 
 });
 
