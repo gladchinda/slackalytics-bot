@@ -36,6 +36,7 @@ const splitCount = text => regex => {
  */
 const postMessageAnalytics = app => message => {
 
+	// Get logger from app instance
 	const logger = getLogger(app);
 
 	// Extract message data to local variables
@@ -43,7 +44,8 @@ const postMessageAnalytics = app => message => {
 	const { id: userID, name: userName, email: userEmail } = message.user;
 	const { id: channelID, name: channelName } = message.channel;
 
-	const teamDomain = message.team_domain;
+	// Extract team domain from app instance
+	const { domain: teamDomain } = app.get('SLACK_TEAM') || {};
 
 	// Create match and split count functions for the message text
 	const searchM = matchCount(messageText);
@@ -88,6 +90,8 @@ const postMessageAnalytics = app => message => {
 		el: messageText,
 		ev: 1
 	};
+
+	console.log(data);
 
 	// Push the data to Google Analytics server
 	axios.post(`https://www.google-analytics.com/collect?${qs.stringify(data)}`)

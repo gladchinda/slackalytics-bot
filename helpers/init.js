@@ -1,9 +1,10 @@
+const _ = require('lodash');
 const { RTMClient, WebClient } = require('@slack/client');
 
 const Config = require('./config');
 const slackEvents = require('./events');
-const { setupLogger } = require('./logger');
 const { fetchAllUsers } = require('./users');
+const { getLogger, setupLogger } = require('./logger');
 const { fetchAllChannels, fetchAllGroups } = require('./channels');
 
 // Fetch Slack Access Token from config
@@ -21,12 +22,27 @@ module.exports = app => {
 	// Set Slack clients on app instance
 	app.set('SLACK_CLIENTS', { web, rtm });
 
-	// Fetch and store users, groups and channels data
-	fetchAllUsers(app);
-	fetchAllGroups(app);
-	fetchAllChannels(app);
+	// Get logger from app instance
+	const logger = getLogger(app);
 
-	// Setup Slack realtime messaging events
-	slackEvents(app);
+	web.team.info()
+		.then(res => {
+
+			// Fetch the team information
+			const team = _.pick(res.team, [ 'id', 'name', 'domain', 'email_domain' ]);
+
+			// Set the team data on the app instance
+			app.set('SLACK_TEAM', team);
+
+			// Fetch and store users, groups and channels data
+			fetchAllUsers(app);
+			fetchAllGroups(app);
+			fetchAllChannels(app);
+
+			// Setup Slack realtime messaging events
+			slackEvents(app);
+
+		})
+		.catch(err => logger.error('An error occurred while trying to fetch team information: %s', err));
 
 };
