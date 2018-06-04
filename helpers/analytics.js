@@ -91,8 +91,6 @@ const postMessageAnalytics = app => message => {
 		ev: 1
 	};
 
-	console.log(data);
-
 	// Push the data to Google Analytics server
 	axios.post(`https://www.google-analytics.com/collect?${qs.stringify(data)}`)
 		.then(res => console.log('PUSHED'))
