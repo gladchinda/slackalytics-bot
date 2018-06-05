@@ -21,7 +21,7 @@
  "scripts": {
   "dev": "npm-run-all nodemon",
   "start": "cross-env NODE_ENV=production node app.js",
-  "nodemon": "nodemon --watch helpers --watch app.js --exec \"npm-run-all -s server:dev\"",
+  "nodemon": "nodemon --watch app --watch app.js --exec \"npm-run-all -s server:dev\"",
   "server:dev": "node app.js"
  },
  "author": "Glad Chinda <gladxeqs@gmail.com>",
