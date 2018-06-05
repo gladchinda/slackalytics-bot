@@ -1,8 +1,10 @@
 const _ = require('lodash');
+const bodyParser = require('body-parser');
 const { RTMClient, WebClient } = require('@slack/client');
 
 const Config = require('../config');
 const { getLogger } = require('../utils');
+const setupAppRoutes = require('../routes');
 const setupAppLogger = require('../logger');
 const setupSlackEvents = require('../slack/events');
 const { fetchAllUsers } = require('../slack/users');
@@ -10,8 +12,15 @@ const { fetchAllChannels, fetchAllGroups } = require('../slack/channels');
 
 module.exports = app => {
 
+	// Setup app middlewares
+	app.use(bodyParser.json());
+	app.use(bodyParser.urlencoded({ extended: true }));
+
 	// Setup logger for Express app
 	setupAppLogger(app);
+
+	// Mount app routes on app instance
+	setupAppRoutes(app);
 
 	// Fetch Slack Access Token from config
 	const SLACK_TOKEN = Config.tokens.slack;
@@ -30,7 +39,7 @@ module.exports = app => {
 	// Get logger from app instance
 	const logger = getLogger(app);
 
-	web.team.info()
+	return web.team.info()
 		.then(res => {
 
 			// Fetch the team information
