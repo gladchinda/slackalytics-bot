@@ -1,8 +1,7 @@
 const _ = require('lodash');
 const fs = require('fs');
-const Config = require('./config');
-const { getLogger } = require('./logger');
-const { getFilePointer } = require('./functions');
+const Config = require('../config');
+const { getLogger, getSlackClients, getFilePointer } = require('../utils');
 
 // Fetch the users.json file from the config.
 const USERS_JSON_FILE = Config.files.users;
@@ -40,7 +39,7 @@ const fetchAllUsers = app => {
 	const logger = getLogger(app);
 
 	// Get the Slack WebClient from app instance
-	const { web: client } = app.get('SLACK_CLIENTS') || {};
+	const { web: client } = getSlackClients(app) || {};
 
 	client && client.users.list()
 		.then((res) => {

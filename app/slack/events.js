@@ -1,7 +1,7 @@
 const _ = require('lodash');
-const { getLogger } = require('./logger');
 const { postMessageAnalytics } = require('./analytics');
 const { fetchAllUsers, getUserById } = require('./users');
+const { getLogger, getSlackClients } = require('../utils');
 const { fetchAllChannels, fetchAllGroups, getGroupById, getChannelById } = require('./channels');
 
 /**
@@ -17,7 +17,7 @@ const bindAllEvents = app => (events = [], handler = f => f) => {
 	const hasLogger = logger && logger.info;
 
 	// Get Slack clients from the app instance
-	const { rtm = null } = app.get('SLACK_CLIENTS') || {};
+	const { rtm = null } = getSlackClients(app) || {};
 
 	// Register each collection event on the RtmClient
 	rtm && events.forEach(event => {
@@ -32,10 +32,15 @@ const bindAllEvents = app => (events = [], handler = f => f) => {
 
 }
 
+/**
+ * Setup the Slack event listeners for realtime Slack events on the app.
+ *
+ * @param {Express.Application} app An instance of express.Application
+ */
 module.exports = app => {
 
 	// Get Slack clients from the app instance
-	const { web = null, rtm = null } = app.get('SLACK_CLIENTS') || {};
+	const { web = null, rtm = null } = getSlackClients(app) || {};
 
 	if (rtm && web) {
 
@@ -94,5 +99,7 @@ module.exports = app => {
 		bindEvents(memberEvents, (data,app) => fetchAllChannels(app));
 
 	}
+
+	return app;
 
 };

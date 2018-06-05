@@ -1,7 +1,7 @@
 const qs = require('querystring');
 const axios = require('axios');
-const Config = require('./config');
-const { getLogger } = require('./logger');
+const Config = require('../config');
+const { getLogger, getSlackTeam } = require('../utils');
 
 // Fetches the Google Analytics tracking ID from config
 const ANALYTICS_ID = Config.analytics.id;
@@ -45,7 +45,7 @@ const postMessageAnalytics = app => message => {
 	const { id: channelID, name: channelName } = message.channel;
 
 	// Extract team domain from app instance
-	const { domain: teamDomain } = app.get('SLACK_TEAM') || {};
+	const { domain: teamDomain } = getSlackTeam(app) || {};
 
 	// Create match and split count functions for the message text
 	const searchM = matchCount(messageText);

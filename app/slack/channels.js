@@ -1,8 +1,7 @@
 const _ = require('lodash');
 const fs = require('fs');
-const Config = require('./config');
-const { getLogger } = require('./logger');
-const { getFilePointer } = require('./functions');
+const Config = require('../config');
+const { getLogger, getSlackClients, getFilePointer } = require('../utils');
 
 // Fetch the groups.json and channels.json files from the config.
 const GROUPS_JSON_FILE = Config.files.groups;
@@ -60,7 +59,7 @@ const fetchAllChannels = app => {
 	const logger = getLogger(app);
 
 	// Get the Slack WebClient from app instance
-	const { web: client } = app.get('SLACK_CLIENTS') || {};
+	const { web: client } = getSlackClients(app) || {};
 
 	client && client.channels.list()
 		.then((res) => {
@@ -104,7 +103,7 @@ const fetchAllGroups = app => {
 	const logger = getLogger(app);
 
 	// Get the Slack WebClient from app instance
-	const { web: client } = app.get('SLACK_CLIENTS') || {};
+	const { web: client } = getSlackClients(app) || {};
 
 	client && client.groups.list()
 		.then((res) => {

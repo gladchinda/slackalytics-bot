@@ -1,26 +1,31 @@
 const _ = require('lodash');
 const { RTMClient, WebClient } = require('@slack/client');
 
-const Config = require('./config');
-const slackEvents = require('./events');
-const { fetchAllUsers } = require('./users');
-const { getLogger, setupLogger } = require('./logger');
-const { fetchAllChannels, fetchAllGroups } = require('./channels');
-
-// Fetch Slack Access Token from config
-const SLACK_TOKEN = Config.tokens.slack;
+const Config = require('../config');
+const { getLogger } = require('../utils');
+const setupAppLogger = require('../logger');
+const setupSlackEvents = require('../slack/events');
+const { fetchAllUsers } = require('../slack/users');
+const { fetchAllChannels, fetchAllGroups } = require('../slack/channels');
 
 module.exports = app => {
 
 	// Setup logger for Express app
-	setupLogger(app);
+	setupAppLogger(app);
+
+	// Fetch Slack Access Token from config
+	const SLACK_TOKEN = Config.tokens.slack;
+
+	// Get Slack config keynames from config
+	const SLACK_TEAM = Config.configKeys.team;
+	const SLACK_CLIENTS = Config.configKeys.clients;
 
 	// Create Slack clients
 	const rtm = new RTMClient(SLACK_TOKEN);
 	const web = new WebClient(SLACK_TOKEN);
 
 	// Set Slack clients on app instance
-	app.set('SLACK_CLIENTS', { web, rtm });
+	app.set(SLACK_CLIENTS, { web, rtm });
 
 	// Get logger from app instance
 	const logger = getLogger(app);
@@ -32,7 +37,7 @@ module.exports = app => {
 			const team = _.pick(res.team, [ 'id', 'name', 'domain', 'email_domain' ]);
 
 			// Set the team data on the app instance
-			app.set('SLACK_TEAM', team);
+			app.set(SLACK_TEAM, team);
 
 			// Fetch and store users, groups and channels data
 			fetchAllUsers(app);
@@ -40,9 +45,10 @@ module.exports = app => {
 			fetchAllChannels(app);
 
 			// Setup Slack realtime messaging events
-			slackEvents(app);
+			setupSlackEvents(app);
 
 		})
+		.then(() => app)
 		.catch(err => logger.error('An error occurred while trying to fetch team information: %s', err));
 
 };

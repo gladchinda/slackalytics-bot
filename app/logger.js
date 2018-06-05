@@ -1,5 +1,6 @@
 const moment = require('moment');
 const winston = require('winston');
+const Config = require('./config');
 const DailyRotateFile = require('winston-daily-rotate-file');
 
 /**
@@ -41,7 +42,10 @@ const dailyLogFileHelper = (label, level) => {
  *
  * @param {Express.Application} app An instance of Express.Application
  */
-const setupLogger = app => {
+module.exports = app => {
+
+	// App environment flag
+	const dev = Config.env.dev && true;
 
 	// Create Winston logger with the required transports
 	// DailyRotateFile transport is used
@@ -59,26 +63,17 @@ const setupLogger = app => {
 	});
 
 	// Include Console transport for development environment
-	if (process.env.NODE_ENV !== 'production') {
-		logger.add(new winston.transports.Console({
-			level: 'error',
-			format: winston.format.simple()
-		}));
-	}
+	(dev) && logger.add(new winston.transports.Console({
+		level: 'error',
+		format: winston.format.simple()
+	}));
+
+	// Get logger keyname from config
+	const APP_LOGGER = Config.configKeys.logger;
 
 	// Set logger on the app instance
-	app.set('APP_LOGGER', logger);
+	APP_LOGGER && app.set(APP_LOGGER, logger);
 
-}
+	return app;
 
-/**
- * Get logger from the Express app instance.
- *
- * @param {Express.Application} app An instance of Express.Application
- */
-const getLogger = app => app.get('APP_LOGGER');
-
-module.exports = {
-	getLogger,
-	setupLogger
 };

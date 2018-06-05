@@ -2,8 +2,10 @@ const _ = require('lodash');
 const path = require('path');
 
 // Get prefix based on runtime environment
-const dev = process.env.NODE_ENV !== 'production';
-const CONFIG_PREFIX = dev ? 'TEST_' : 'LIVE_';
+const development = process.env.NODE_ENV !== 'production';
+
+// Environment-based prefix for config varaiable
+const CONFIG_PREFIX = development ? 'TEST_' : 'LIVE_';
 
 /**
  * Gets the value from an environment variable.
@@ -25,6 +27,19 @@ const env = (config, withPrefix = false) => {
 };
 
 module.exports = {
+
+	// App envirnonment details
+	env: {
+		dev: development,
+		prefix: CONFIG_PREFIX
+	},
+
+	// Configuration keys for app instance
+	configKeys: {
+		team: 'SLACK_TEAM',
+		logger: 'APP_LOGGER',
+		clients: 'SLACK_CLIENTS'
+	},
 
 	// JSON files for caching users, groups and channels data
 	files: {
