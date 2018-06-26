@@ -62,3 +62,6 @@ typings/
 
 # runtime app data
 .data
+
+# vscode .idea directory
+.idea
