@@ -22,7 +22,8 @@
   "dev": "npm-run-all nodemon",
   "start": "cross-env NODE_ENV=production node app.js",
   "nodemon": "nodemon --watch app --watch app.js --exec \"npm-run-all -s server:dev\"",
-  "server:dev": "node app.js"
+  "server:dev": "node app.js",
+  "test": "jest"
  },
  "author": "Glad Chinda <gladxeqs@gmail.com>",
  "license": "MIT",
@@ -42,6 +43,7 @@
   "winston-daily-rotate-file": "^3.2.1"
  },
  "devDependencies": {
+  "jest": "^23.2.0",
   "nodemon": "^1.17.5"
  }
 }
