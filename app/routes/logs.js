@@ -41,7 +41,7 @@ router.get('/:type/search/:date', (req, res) => {
 		return res.status(422).json({
 			status: 'failed',
 			error: 'BAD_REQUEST_PARAM',
-			message: 'Unknown log request type. Required type is either `error` or `info`.'
+			message: `Unknown log request type. Required type is either ${`${allowedTypes.join('` or `')}`}.`
 		});
 	}
 
