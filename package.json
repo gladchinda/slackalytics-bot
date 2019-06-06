@@ -34,7 +34,7 @@
  "homepage": "https://github.com/gladchinda/slackalytics-bot#readme",
  "dependencies": {
   "@slack/client": "^4.2.2",
-  "axios": "^0.18.0",
+  "axios": "^0.18.1",
   "body-parser": "^1.18.3",
   "cross-env": "^5.1.6",
   "dotenv": "^5.0.1",
